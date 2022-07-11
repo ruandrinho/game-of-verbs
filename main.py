@@ -12,7 +12,7 @@ def start(update: Update, context: CallbackContext):
                              text="Привет, напиши что-нибудь")
 
 
-def chat(update: Update, context: CallbackContext):    
+def chat(update: Update, context: CallbackContext):
     project_id = os.getenv('GOOGLECLOUD_PROJECT_ID')
     session_id = update.effective_chat.id
     session_client = dialogflow.SessionsClient()

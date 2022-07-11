@@ -1,5 +1,7 @@
 .vscode
 game-of-verbs-355712-3e044d2aa559.json
+questions.json
+create_intent.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
