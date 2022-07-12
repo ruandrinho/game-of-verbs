@@ -11,7 +11,21 @@ def echo(event, vk_api):
     vk_api.messages.send(
         user_id=event.obj['message']['from_id'],
         message=event.obj['message']['text'],
-        random_id=random.randint(1,1000)
+        random_id=random.randint(1, 1000)
+    )
+
+
+def chat(event, vk_api):
+    project_id = os.getenv('GOOGLECLOUD_PROJECT_ID')
+    session_id = event.obj['message']['from_id']
+    session_client = dialogflow.SessionsClient()
+    session = session_client.session_path(project_id, session_id)
+    reply = get_dialogflow_reply(session, session_client,
+                                 event.obj['message']['text'])
+    vk_api.messages.send(
+        user_id=session_id,
+        message=reply,
+        random_id=random.randint(1, 1000)
     )
 
 
@@ -40,7 +54,7 @@ def main():
 
     for event in longpoll.listen():
         if event.type == VkBotEventType.MESSAGE_NEW:
-            echo(event, vk_session_api)
+            chat(event, vk_session_api)
             # print('Новое сообщение:')
             # print('Для меня от:', event.obj['message']['from_id'])
             # print('Текст:', event.obj['message']['text'])
