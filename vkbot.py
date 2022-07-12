@@ -22,11 +22,12 @@ def chat(event, vk_api):
     session = session_client.session_path(project_id, session_id)
     reply = get_dialogflow_reply(session, session_client,
                                  event.obj['message']['text'])
-    vk_api.messages.send(
-        user_id=session_id,
-        message=reply,
-        random_id=random.randint(1, 1000)
-    )
+    if reply:
+        vk_api.messages.send(
+            user_id=session_id,
+            message=reply,
+            random_id=random.randint(1, 1000)
+        )
 
 
 def get_dialogflow_reply(session, session_client, text, language_code='ru-RU'):
@@ -36,6 +37,8 @@ def get_dialogflow_reply(session, session_client, text, language_code='ru-RU'):
     response = session_client.detect_intent(
         request={'session': session, 'query_input': query_input}
     )
+    if response.query_result.intent.is_fallback:
+        return
     return response.query_result.fulfillment_text
 
 
@@ -55,10 +58,6 @@ def main():
     for event in longpoll.listen():
         if event.type == VkBotEventType.MESSAGE_NEW:
             chat(event, vk_session_api)
-            # print('Новое сообщение:')
-            # print('Для меня от:', event.obj['message']['from_id'])
-            # print('Текст:', event.obj['message']['text'])
-            # print()
 
 
 if __name__ == '__main__':
