@@ -2,9 +2,24 @@ import os
 import logging
 from dotenv import load_dotenv
 import random
+import telegram
 import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from google.cloud import dialogflow
+
+logger = logging.getLogger(__file__)
+
+
+class TelegramLogsHandler(logging.Handler):
+
+    def __init__(self, tg_bot, chat_id):
+        super().__init__()
+        self.chat_id = chat_id
+        self.tg_bot = tg_bot
+
+    def emit(self, record):
+        log_entry = self.format(record)
+        self.tg_bot.send_message(chat_id=self.chat_id, text=log_entry)
 
 
 def chat(event, vk_api):
@@ -41,7 +56,9 @@ def main():
         level=logging.DEBUG,
         format='%(asctime)s %(levelname)s %(message)s'
     )
-    # logger.addHandler(TelegramLogsHandler(bot, chat_id))
+    logging_chat_id = os.getenv('TELEGRAM_LOGGING_CHAT_ID')
+    logging_bot = telegram.Bot(token=os.getenv('TELEGRAM_BOT_TOKEN'))
+    logger.addHandler(TelegramLogsHandler(logging_bot, logging_chat_id))
 
     vk_session = vk_api.VkApi(token=os.getenv('VK_BOT_TOKEN'))
     vk_session_api = vk_session.get_api()
