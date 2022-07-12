@@ -1,9 +1,18 @@
 import os
 import logging
 from dotenv import load_dotenv
+import random
 import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from google.cloud import dialogflow
+
+
+def echo(event, vk_api):
+    vk_api.messages.send(
+        user_id=event.obj['message']['from_id'],
+        message=event.obj['message']['text'],
+        random_id=random.randint(1,1000)
+    )
 
 
 def get_dialogflow_reply(session, session_client, text, language_code='ru-RU'):
@@ -26,14 +35,16 @@ def main():
     # logger.addHandler(TelegramLogsHandler(bot, chat_id))
 
     vk_session = vk_api.VkApi(token=os.getenv('VK_BOT_TOKEN'))
+    vk_session_api = vk_session.get_api()
     longpoll = VkBotLongPoll(vk_session, '214464975')
 
     for event in longpoll.listen():
         if event.type == VkBotEventType.MESSAGE_NEW:
-            print('Новое сообщение:')
-            print('Для меня от:', event.obj['message']['from_id'])
-            print('Текст:', event.obj['message']['text'])
-            print()
+            echo(event, vk_session_api)
+            # print('Новое сообщение:')
+            # print('Для меня от:', event.obj['message']['from_id'])
+            # print('Текст:', event.obj['message']['text'])
+            # print()
 
 
 if __name__ == '__main__':
