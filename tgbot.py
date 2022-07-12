@@ -21,11 +21,6 @@ def chat(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=update.effective_chat.id, text=reply)
 
 
-def echo(update: Update, context: CallbackContext):
-    context.bot.send_message(chat_id=update.effective_chat.id,
-                             text=update.message.text)
-
-
 def get_dialogflow_reply(session, session_client, text, language_code='ru-RU'):
     text_input = dialogflow.TextInput(text=text,
                                       language_code=language_code)
@@ -51,8 +46,6 @@ def main():
     start_handler = CommandHandler('start', start)
     dispatcher.add_handler(start_handler)
 
-    # echo_handler = MessageHandler(Filters.text & (~Filters.command), echo)
-    # dispatcher.add_handler(echo_handler)
     chat_handler = MessageHandler(Filters.text & (~Filters.command), chat)
     dispatcher.add_handler(chat_handler)
 

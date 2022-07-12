@@ -7,14 +7,6 @@ from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from google.cloud import dialogflow
 
 
-def echo(event, vk_api):
-    vk_api.messages.send(
-        user_id=event.obj['message']['from_id'],
-        message=event.obj['message']['text'],
-        random_id=random.randint(1, 1000)
-    )
-
-
 def chat(event, vk_api):
     project_id = os.getenv('GOOGLECLOUD_PROJECT_ID')
     session_id = event.obj['message']['from_id']
@@ -53,7 +45,7 @@ def main():
 
     vk_session = vk_api.VkApi(token=os.getenv('VK_BOT_TOKEN'))
     vk_session_api = vk_session.get_api()
-    longpoll = VkBotLongPoll(vk_session, '214464975')
+    longpoll = VkBotLongPoll(vk_session, os.getenv('VK_BOT_GROUP_ID'))
 
     for event in longpoll.listen():
         if event.type == VkBotEventType.MESSAGE_NEW:
