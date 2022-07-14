@@ -5,20 +5,10 @@ import telegram
 from telegram.ext import Updater, CallbackContext, CommandHandler
 from telegram.ext import MessageHandler, Filters
 from google.cloud import dialogflow
+from logging_utils import TelegramLogsHandler
+from dialogflow_utils import get_dialogflow_reply
 
 logger = logging.getLogger(__file__)
-
-
-class TelegramLogsHandler(logging.Handler):
-
-    def __init__(self, tg_bot, chat_id):
-        super().__init__()
-        self.chat_id = chat_id
-        self.tg_bot = tg_bot
-
-    def emit(self, record):
-        log_entry = self.format(record)
-        self.tg_bot.send_message(chat_id=self.chat_id, text=log_entry)
 
 
 def start(update: telegram.Update, context: CallbackContext):
@@ -33,16 +23,6 @@ def chat(update: telegram.Update, context: CallbackContext):
     session = session_client.session_path(project_id, session_id)
     reply = get_dialogflow_reply(session, session_client, update.message.text)
     context.bot.send_message(chat_id=update.effective_chat.id, text=reply)
-
-
-def get_dialogflow_reply(session, session_client, text, language_code='ru-RU'):
-    text_input = dialogflow.TextInput(text=text,
-                                      language_code=language_code)
-    query_input = dialogflow.QueryInput(text=text_input)
-    response = session_client.detect_intent(
-        request={'session': session, 'query_input': query_input}
-    )
-    return response.query_result.fulfillment_text
 
 
 def main():
