@@ -13,13 +13,12 @@ logger = logging.getLogger(__file__)
 
 
 def reply_to_message(event, vk_api, project_id):
-    project_id = os.getenv('GOOGLECLOUD_PROJECT_ID')
     session_id = event.obj['message']['from_id']
     session_client = dialogflow.SessionsClient()
     session = session_client.session_path(project_id, session_id)
-    reply = get_dialogflow_reply(session, session_client,
-                                 event.obj['message']['text'])
-    if reply:
+    reply, is_fallback = get_dialogflow_reply(session, session_client,
+                                              event.obj['message']['text'])
+    if not is_fallback:
         vk_api.messages.send(
             user_id=session_id,
             message=reply,

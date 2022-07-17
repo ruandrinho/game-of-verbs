@@ -22,7 +22,8 @@ def reply_to_message(update: telegram.Update, context: CallbackContext,
     session_id = update.effective_chat.id
     session_client = dialogflow.SessionsClient()
     session = session_client.session_path(project_id, session_id)
-    reply = get_dialogflow_reply(session, session_client, update.message.text)
+    reply, is_fallback = get_dialogflow_reply(session, session_client,
+                                              update.message.text)
     context.bot.send_message(chat_id=update.effective_chat.id, text=reply)
 
 

@@ -8,4 +8,5 @@ def get_dialogflow_reply(session, session_client, text, language_code='ru-RU'):
     response = session_client.detect_intent(
         request={'session': session, 'query_input': query_input}
     )
-    return response.query_result.fulfillment_text
+    return (response.query_result.fulfillment_text,
+            response.query_result.intent.is_fallback)
