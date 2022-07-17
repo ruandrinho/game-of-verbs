@@ -12,7 +12,7 @@ from dialogflow_utils import get_dialogflow_reply
 logger = logging.getLogger(__file__)
 
 
-def chat(event, vk_api):
+def reply_to_message(event, vk_api, project_id):
     project_id = os.getenv('GOOGLECLOUD_PROJECT_ID')
     session_id = event.obj['message']['from_id']
     session_client = dialogflow.SessionsClient()
@@ -42,9 +42,10 @@ def main():
     vk_session_api = vk_session.get_api()
     longpoll = VkBotLongPoll(vk_session, os.getenv('VK_BOT_GROUP_ID'))
 
+    project_id = os.getenv('GOOGLECLOUD_PROJECT_ID')
     for event in longpoll.listen():
         if event.type == VkBotEventType.MESSAGE_NEW:
-            chat(event, vk_session_api)
+            reply_to_message(event, vk_session_api, project_id)
 
 
 if __name__ == '__main__':

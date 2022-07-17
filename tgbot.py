@@ -7,6 +7,7 @@ from telegram.ext import MessageHandler, Filters
 from google.cloud import dialogflow
 from logging_utils import TelegramLogsHandler
 from dialogflow_utils import get_dialogflow_reply
+from functools import partial
 
 logger = logging.getLogger(__file__)
 
@@ -16,8 +17,8 @@ def start(update: telegram.Update, context: CallbackContext):
                              text="Привет, напиши что-нибудь")
 
 
-def chat(update: telegram.Update, context: CallbackContext):
-    project_id = os.getenv('GOOGLECLOUD_PROJECT_ID')
+def reply_to_message(update: telegram.Update, context: CallbackContext,
+                     project_id):
     session_id = update.effective_chat.id
     session_client = dialogflow.SessionsClient()
     session = session_client.session_path(project_id, session_id)
@@ -42,7 +43,10 @@ def main():
     start_handler = CommandHandler('start', start)
     dispatcher.add_handler(start_handler)
 
-    chat_handler = MessageHandler(Filters.text & (~Filters.command), chat)
+    project_id = os.getenv('GOOGLECLOUD_PROJECT_ID')
+    reply_to_message_partial = partial(reply_to_message, project_id=project_id)
+    chat_handler = MessageHandler(Filters.text & (~Filters.command),
+                                  reply_to_message_partial)
     dispatcher.add_handler(chat_handler)
 
     updater.start_polling()
